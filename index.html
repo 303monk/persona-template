@@ -147,6 +147,8 @@
     font-size: 14px; color: var(--text); background: var(--white);
     resize: none; transition: border-color 0.15s, box-shadow 0.15s;
     line-height: 1.6;
+    overflow: hidden; /* 스크롤 제거 */
+    min-height: 90px;
   }
   .field-input:focus { outline: none; }
   .field-input::placeholder { color: var(--gray-400); font-style: italic; }
@@ -237,6 +239,9 @@
     .card { border-radius: 0; border: none; }
     .page-header { max-width: 100%; margin: 16px 20px 16px; }
     .card { max-width: 100%; }
+    .field-input { overflow: visible !important; height: auto !important; page-break-inside: avoid; }
+    .field-group { page-break-inside: avoid; }
+    .grid-2, .grid-3, .section-top { page-break-inside: avoid; }
   }
 </style>
 </head>
@@ -361,7 +366,7 @@
     <div class="submit-row">
       <div class="submit-info">
         <div class="submit-title">제출 체크리스트</div>
-        <div class="submit-desc">7개 항목을 모두 작성후 PDF파일로 저장 후 LMS로 제출</div>
+        <div class="submit-desc">7개 항목을 모두 채웠으면 파일 저장 후 제출</div>
       </div>
       <div class="checklist">
         <div class="check-item"><div class="check-dot" id="c1"></div> ① 대표사용자</div>
@@ -412,6 +417,11 @@
     reader.readAsDataURL(file);
   }
 
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
   function updateChecklist() {
     ['f1','f2','f3','f4','f5','f6','f7'].forEach((id, i) => {
       const val = document.getElementById(id).value.trim();
@@ -421,7 +431,11 @@
   }
 
   ['f1','f2','f3','f4','f5','f6','f7'].forEach(id => {
-    document.getElementById(id).addEventListener('input', updateChecklist);
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      autoResize(el);
+      updateChecklist();
+    });
   });
 </script>
 </body>
