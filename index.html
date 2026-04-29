@@ -235,13 +235,22 @@
 
   @media print {
     body { padding: 0; background: white; }
-    .print-btn, .guide-section { display: none; }
+    .print-btn, .guide-section, .submit-row { display: none; }
     .card { border-radius: 0; border: none; }
     .page-header { max-width: 100%; margin: 16px 20px 16px; }
     .card { max-width: 100%; }
-    .field-input { overflow: visible !important; height: auto !important; page-break-inside: avoid; }
     .field-group { page-break-inside: avoid; }
     .grid-2, .grid-3, .section-top { page-break-inside: avoid; }
+    .print-div {
+      width: 100%; padding: 10px 14px;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 14px; color: var(--text);
+      line-height: 1.6; white-space: pre-wrap;
+      min-height: 90px; word-break: break-word;
+    }
+    .print-div.empty { color: var(--gray-400); font-style: italic; }
+    textarea { display: none !important; }
   }
 </style>
 </head>
@@ -436,6 +445,32 @@
       autoResize(el);
       updateChecklist();
     });
+  });
+
+  // 인쇄 시 textarea → div 교체 후 인쇄, 완료 후 원복
+  document.querySelector('.print-btn').addEventListener('click', function() {
+    const textareas = document.querySelectorAll('textarea.field-input');
+    const placeholders = [];
+
+    textareas.forEach((ta) => {
+      const div = document.createElement('div');
+      div.className = 'print-div field-input';
+      const content = ta.value.trim();
+      if (content) {
+        div.textContent = content;
+      } else {
+        div.textContent = ta.placeholder;
+        div.classList.add('empty');
+      }
+      div.dataset.taId = ta.id;
+      ta.parentNode.insertBefore(div, ta);
+      placeholders.push({ div, ta });
+    });
+
+    window.print();
+
+    // 인쇄 후 div 제거, textarea 원복
+    placeholders.forEach(({ div }) => div.remove());
   });
 </script>
 </body>
